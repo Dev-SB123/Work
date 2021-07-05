@@ -1,0 +1,109 @@
+local parent = script.Parent
+
+local serverstor = game.ServerStorage
+local repstor = game.ReplicatedStorage
+script.Parent.RemoteEvent.OnServerEvent:Connect(function(player,state,name,types)
+	local namer = player.Name
+	if state == true then
+		if types == "NO" then
+			
+			local place = serverstor.Inventories[player.Name]
+			local clone = place:FindFirstChild(name):Clone()
+			if clone.Type.Value == "Shield" then
+				clone.Parent = game.ReplicatedStorage.ClientInv[namer.."Accessories"]
+			end
+			if clone.Type.Value == "Armor" then
+				clone.Parent = game.ReplicatedStorage.ClientInv[namer.."Accessories"]
+			end
+			if clone.Type.Value ~= "Armor" and clone.Type.Value ~= "Shield" then
+				clone.Parent = game.ReplicatedStorage.ClientInv[namer.."Equips"]
+			end
+			--local clone2 = place:FindFirstChild(name):Clone()
+			--clone2.Parent = player.StarterGear
+		end
+		if types == "Many" then
+			local place = serverstor.Inventories[player.Name]
+			local place2 = repstor.ClientInv[player.Name]
+			if place:FindFirstChild(name) == nil then
+				return
+			end
+			--local clone = place:FindFirstChild(name):Clone()
+			local tool =  place:FindFirstChild(name)
+			local tool2 =  place2:FindFirstChild(name)
+			tool.Parent =  game.ReplicatedStorage.ClientInv[namer.."Equips"]
+			tool2:Destroy()
+			--clone.Parent = player.StarterGear
+		end
+	end
+	
+	if state ==  false then
+		
+		if game.ReplicatedStorage.ClientInv[namer.."Accessories"]:FindFirstChild(name) ~= nil then
+			local find = game.ReplicatedStorage.ClientInv[namer.."Accessories"]:FindFirstChild(name)
+			find:Destroy()
+		end
+		if game.ReplicatedStorage.ClientInv[namer.."Equips"]:FindFirstChild(name) ~= nil then
+			local find = game.ReplicatedStorage.ClientInv[namer.."Equips"]:FindFirstChild(name)
+			find:Destroy()
+		end
+		--local find2 = player.StarterGear:FindFirstChild(name)
+		--find2:Destroy()
+		
+	end
+	
+	if state == "addback" then
+		local find = game.ReplicatedStorage.ClientInv[namer.."Equips"]:FindFirstChild(name)
+		local findclo = find:Clone()
+		find.Parent = game.ServerStorage.Inventories[player.Name]
+		findclo.Parent = game.ReplicatedStorage.ClientInv[player.Name]
+		--local find2 = player.StarterGear:FindFirstChild(name)
+		--find2:Destroy()
+	end
+	
+end)
+
+
+local parent = script.Parent
+local stuff = require(game.ServerStorage.ModuleScript)
+
+function currload(player)
+	local location = game.ReplicatedStorage.ClientInv[player.Name.."Equips"]
+	local location2 = game.ReplicatedStorage.ClientInv[player.Name.."Accessories"]
+	local str = ""
+	local key = "Loadoutc0A"..player.UserId	
+	for _, i in pairs(location:GetChildren()) do
+		print(i.Name)
+		if i:FindFirstChild("Type") ~= nil then
+			local types = i:FindFirstChild("Type").Value
+			local typesname = i:FindFirstChild("Type").Name
+			if types == "Melee" then
+				str = str.."/"..i.Name
+			end
+			if types == "Item" then
+				if i:FindFirstChild("Many") == nil then
+					str = str.."/"..i.Name
+				end
+			end
+
+		end
+	end
+	for _, i in ipairs(location2:GetChildren()) do
+		if i:FindFirstChild("Type") ~= nil then
+			local types = i:FindFirstChild("Type").Value
+			if types == "Armor" then
+				str = str.."/"..i.Name
+			end
+			if types == "Shield" then
+				str = str.."/"..i.Name
+			end
+		end
+	end
+
+	print(str)
+	player.Space.Currentloadout.Value = str
+end
+
+parent.loadout.OnServerEvent:Connect(function(playerz)
+	currload(playerz)
+
+end)
