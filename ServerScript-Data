@@ -1,0 +1,132 @@
+local players = game:GetService("Players")
+local replicatedstorage = game:GetService("ReplicatedStorage")
+local serverstorage = game:GetService("ServerStorage")
+local stuff = require(game.ServerStorage.ModuleScript)
+local state = true
+
+players.PlayerAdded:Connect(function(player)
+	
+	--wait(3)
+	--while state == true do
+		--wait(1)
+		--if game.ServerStorage.Inventories:FindFirstChild(player.Name) == nil then
+	stuff:adddata(player)
+	stuff:Items(player)
+	stuff:currentloadout(player)
+	stuff:questload(player)
+			
+		--else
+			--state = false
+			--return state
+		--end
+	--end
+	--wait(3)
+	
+	--wait(3)
+	
+	
+end)
+
+
+replicatedstorage.Shop.Weapon.OnServerEvent:Connect(function(player,types,item)
+	
+	stuff:additem(player,types,item)
+	
+end)
+
+--replicatedstorage.Saves.OnServerEvent:Connect(function(player)
+	--stuff.Addos(player)
+	--wait(6)
+	--stuff:easysave(player)
+--end)
+
+replicatedstorage.Shop.Save.OnServerEvent:Connect(function(player,price)
+	stuff:changeinfo(player,"Cash",price)	
+end)
+
+replicatedstorage.Shop.State.OnServerEvent:Connect(function(player,item,place)
+	for _, items in ipairs(player.Backpack:GetChildren()) do
+		if items.Name == item then
+			for i, z in ipairs(game.StarterGui.WeaponShop.ScrollingFrame:GetChildren()) do
+				if z.Text.Value == item then
+					local frame = z.State
+					frame.Value = "False"
+					return frame.Value
+				end
+			end
+		end
+	end
+end)
+
+game:BindToClose(function()
+	for _, client in ipairs(players:GetPlayers()) do
+		for _, item in ipairs(game.Players[client.Name].StarterGear:GetChildren()) do
+			if item:FindFirstChild("Many") ~= nil then
+				local name = item.Name
+				stuff:additem(client,"Item",name)
+			end
+		end
+		--stuff.Saveonleave(client)
+		stuff:savecurrentloadout(client)
+		stuff:Save(client)
+	end
+end)
+
+
+
+game.ReplicatedStorage.Quest.OnServerEvent:Connect(function(player,strin)
+	if strin ~= "Joe" then
+		local invfold = game.ServerStorage.Inventories[player.Name.."CurrentQuest"]
+		
+		if invfold:GetChildren() ~= 0 then
+			for _, i in pairs(invfold:GetChildren()) do
+				i:Destroy()
+			end
+		end
+		
+		local a = string.split(strin,"/")
+		for _, i in pairs(a) do
+			print(i)
+		end
+		print(a[2])
+		if a[2] == "Kill" then
+			local str = Instance.new("StringValue",invfold)
+			str.Name = "Type"
+			str.Value = a[2]
+			str.Parent = invfold
+			local intamount = Instance.new("IntValue",invfold)
+			intamount.Value = tonumber(a[3])
+			intamount.Name = "Amount"
+			intamount.Parent = invfold
+			local intprize = Instance.new("IntValue",invfold)
+			intprize.Value = tonumber(a[4])
+			intprize.Name = "Prize"
+			intprize.Parent = invfold
+		end
+		if a[2] == "Find" then
+			local str = Instance.new("StringValue",invfold)
+			str.Value = a[2]
+			str.Name = "Type"
+			str.Parent = invfold
+			local intamount = Instance.new("IntValue",invfold)
+			intamount.Value = tonumber(a[3])
+			intamount.Name = "Amount"
+			intamount.Parent = invfold
+			local strobj = Instance.new("StringValue",invfold)
+			strobj.Value = a[4]
+			strobj.Name = "Object"
+			strobj.Parent = invfold
+			local intprize = Instance.new("IntValue",invfold)
+			intprize.Value = tonumber(a[5])
+			intprize.Name = "Prize"
+			intprize.Parent = invfold
+		end
+	else
+		local location = game.ServerStorage.Inventories[player.Name.."CurrentQuest"]
+		for _, i in ipairs(location:GetChildren()) do
+			i:Destroy()
+		end
+	end
+end)
+
+
