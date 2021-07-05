@@ -1,0 +1,71 @@
+
+local player = game.Players.LocalPlayer
+local name = player.Name
+local tweenservice = game:GetService("TweenService")
+local info = TweenInfo.new(1,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut)
+local Animationd = Instance.new("Animation")
+Animationd.AnimationId = "http://www.roblox.com/Asset?ID="..5692010425
+local servi = game:GetService("UserInputService")
+local humanoid = player.Character:WaitForChild("Humanoid")
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid2 = character:WaitForChild("Humanoid")
+local track = humanoid2:LoadAnimation(Animationd)
+local camera = workspace.CurrentCamera
+local state = true
+local prop = {FieldOfView = 55}
+local prop2 = {FieldOfView = 70}
+local s = tweenservice:Create(camera,info,prop)
+local b = tweenservice:Create(camera,info,prop2)
+local RunService = game:GetService("RunService")
+local a 
+
+--local shield = game.ReplicatedStorage.Shield
+
+
+function keyupdat()
+		--if humanoid.MoveDirection.Magnitude > 0 then
+			--if humanoid:GetState() ~= Enum.HumanoidStateType.PlatformStanding then
+			
+			--end
+			
+	if humanoid.MoveDirection.Magnitude == 0 then
+			--if humanoid:GetState() == Enum.HumanoidStateType.PlatformStanding then
+		track:Stop()
+		b:Play()
+		
+		player.Character.Humanoid.WalkSpeed = 18
+	end
+	if humanoid:GetState() == Enum.HumanoidStateType.Jumping or  humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+		track:Stop()
+		b:Play()
+		player.Character.Humanoid.WalkSpeed = 18
+	end
+	
+		
+end
+servi.InputBegan:Connect(function(key, gameProcessed)
+	if gameProcessed then return end
+	if key.KeyCode == Enum.KeyCode.E and (humanoid:GetState() ~= Enum.HumanoidStateType.Climbing and humanoid:GetState() ~= Enum.HumanoidStateType.Physics) then
+		track:Play()
+		player.Character.Humanoid.WalkSpeed = 30
+		s:Play()
+		RunService.RenderStepped:Connect(keyupdat)
+		
+	end
+	
+	
+	
+end)
+
+
+
+	servi.InputEnded:Connect(function(key)
+		if key.KeyCode == Enum.KeyCode.E then
+			track:Stop()
+			player.Character.Humanoid.WalkSpeed = 18
+			b:Play()
+			wait(2)
+			--s:Stop()
+			--a:Disconnect()
+		end
+	end)
