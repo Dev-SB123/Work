@@ -12,6 +12,6 @@ it or my computer programming skills until I started ROBLOX, I have seen myself 
 Anyone can look through copy or be inspired by my code I will also accept advice on how I could improve my code.
 
 Current project that I might tackle on is making a gun, (I need to use physics, take the trajectory path and get the derivative of this trajectory with respect to time, 2d 
-vectors can then be made using the derivative at points I will have to make it tangent to the trajectory which is simple, let c be a constant that x approaches f'(c)(x-c)+f(x).
+vectors can then be made using the derivative at points I will have to make it tangent to the trajectory which is simple, let c be a constant that x approaches f'(c)(x-c)+f(c).
 This is simplified as I want to keep it short for now, but I sure do enjoy involving math, and physics into computer programming. Well thats all for now.
 
