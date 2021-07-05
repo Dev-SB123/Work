@@ -1,0 +1,479 @@
+local module = {}
+local autosavetime = 180
+local session = {}
+
+local DataStoreService = game:GetService("DataStoreService")
+local PlayerData = DataStoreService:GetDataStore("PlayerData")
+
+
+local function addtosession(player)
+	local userid = "Player-"..player.UserId
+	local data = PlayerData:GetAsync(userid)
+	if data then
+		session[userid] = data
+	else
+		session[userid] = {Cash = 0,Kills = 0}
+	end
+end
+
+function module:adddata(player)
+	local values = Instance.new("Folder")
+	values.Name = "Space"
+	values.Parent = player
+	local cash = Instance.new("IntValue")
+	local kills = Instance.new("IntValue")
+	cash.Name = "Cash"
+	kills.Name = "Kills"
+	cash.Parent = values
+	kills.Parent = values
+	local times = 0
+	local info
+	--local playeruserid = "Player*"..player.UserId
+	local success, erro = pcall(function()
+		
+		info = PlayerData:GetAsync("Player-"..player.UserId)
+
+	end)
+	if success then
+		if info then
+			player.Space.Cash.Value = info.Cash
+			player.Space.Kills.Value = info.Kills
+		else
+			player.Space.Cash.Value = 0
+			player.Space.Kills.Value = 0
+		end
+	end
+end
+
+-----------------------------------------------------------------------------------------
+function module:Items(player)
+	
+	
+	local tool = game.ServerStorage.PlayerStuff.Weapon
+	local itemz = game.ServerStorage.PlayerStuff.Item
+	local sword = game.ServerStorage.PlayerStuff.Weapon.Sword
+	local armor = game.ServerStorage.PlayerStuff.Armor
+	local shield = game.ServerStorage.PlayerStuff.Shields
+	local beginner = game.ServerStorage.BeginnerStuff
+	local tools
+
+	local key = "Invenc021"..player.UserId
+	local inven
+	
+	
+	local succes, err = pcall(function()
+		inven = PlayerData:GetAsync(key)
+	end)
+	if succes then
+		
+		local invfolder = Instance.new("Folder")
+		invfolder.Name = player.Name
+		invfolder.Parent = game.ServerStorage.Inventories
+		
+		
+		local invf = Instance.new("Folder")
+		invf.Name = player.Name
+		invf.Parent = game.ReplicatedStorage.ClientInv
+		
+		
+		
+		local invfold = Instance.new("Folder")
+		invfold.Name = player.Name.."Equips"
+		invfold.Parent = game.ReplicatedStorage.ClientInv
+		
+		local shieldarmorequip = Instance.new("Folder")
+		shieldarmorequip.Name = player.Name.."Accessories"
+		shieldarmorequip.Parent = game.ReplicatedStorage.ClientInv
+		
+		
+		for _, item in ipairs(inven or {}) do
+			if tool:FindFirstChild(item) ~= nil then
+				tools = tool[item]
+			end
+			if itemz:FindFirstChild(item) ~= nil then
+				tools = itemz[item]
+			end
+			if armor:FindFirstChild(item) ~= nil then
+				tools = armor[item]
+			end
+			if shield:FindFirstChild(item) ~= nil then 
+				tools = shield[item]
+			end
+			tools:Clone().Parent = invf
+			tools:Clone().Parent = invfolder
+		end
+		wait(2)
+		for _, item in ipairs(beginner:GetChildren()) do
+			if invf:FindFirstChild(item.Name) == nil then
+				if tool:FindFirstChild(item.Name) ~= nil then
+					local toos = tool[item.Name]
+					toos:Clone().Parent = invf
+					toos:Clone().Parent = invfolder
+
+				end
+				if shield:FindFirstChild(item.Name) ~= nil then
+					local toos = shield[item.Name]
+					toos:Clone().Parent = invf
+					toos:Clone().Parent = invfolder
+				end
+			end
+		end
+		--if invfolder:FindFirstChild("Katana") == nil then
+			--local toos = tool["Katana"]
+			--toos:Clone().Parent = invf
+			--toos:Clone().Parent = invfolder
+		--end
+		
+		
+		
+		
+		
+	end
+	if err then
+		print("error")
+	end
+	
+end
+
+function module:currentloadout(player)
+	
+	local armor = game.ServerStorage.PlayerStuff.Armor
+	local shield = game.ServerStorage.PlayerStuff.Shields
+	local tool = game.ServerStorage.PlayerStuff.Weapon
+	local itemz = game.ServerStorage.PlayerStuff.Item
+	local findequips = game.ReplicatedStorage.ClientInv:FindFirstChild(player.Name.."Equips")
+	local findaccesories = game.ReplicatedStorage.ClientInv:FindFirstChild(player.Name.."Accessories")
+	
+	local values = player:FindFirstChild("Space")
+	local currentquest = Instance.new("StringValue")
+	currentquest.Name = "Currentloadout"
+	currentquest.Parent = values
+	local tools
+	
+	local ah
+
+	local success, erro = pcall(function()
+
+		ah = PlayerData:GetAsync("Loadoutc0A"..player.UserId)
+
+	end)
+	if success == true then
+		if ah ~= nil then
+			player.Space.Currentloadout.Value = ah
+			--if values.Quest.Value ~= "" then
+			local li = string.split(player.Space.Currentloadout.Value,"/")
+				for _, i in pairs(li) do 
+					print(i)
+				end
+				local lenth = #li
+				--for _, i in pairs(li) do
+				--if tonumber(li[3]) ~= 0 then
+			--if li[2] == "Kill" then
+			if li[1] ~= 0 then
+				for _, i in ipairs(li) do
+					if armor:FindFirstChild(i) ~= nil then
+						tools = armor[i]
+						tools:Clone().Parent = findaccesories
+					end
+					if shield:FindFirstChild(i) ~= nil then
+						tools = shield[i]
+						tools:Clone().Parent = findaccesories
+					end
+					if tool:FindFirstChild(i) ~= nil then
+						tools = tool[i]
+						tools:Clone().Parent = findequips
+					end
+					if itemz:FindFirstChild(i) ~= nil then
+						tools = itemz[i]
+						tools:Clone().Parent = findequips
+					end
+					
+				end
+			else
+				ah = ""
+				player.Space.Currentloadout.Value = ""
+			end
+
+		else
+			ah = ""
+			player.Space.Currentloadout.Value = ""
+
+		end
+	end
+	if erro then
+		print("error")
+	end
+	
+end
+
+function module:savecurrentloadout(player)
+	print(player)
+	local location = game.ReplicatedStorage.ClientInv[player.Name.."Equips"]
+	local location2 = game.ReplicatedStorage.ClientInv[player.Name.."Accessories"]
+	local str = ""
+	local key = "Loadoutc0A"..player.UserId	
+	for _, i in pairs(location:GetChildren()) do
+		print(i.Name)
+		if i:FindFirstChild("Type") ~= nil then
+			local types = i:FindFirstChild("Type").Value
+			local typesname = i:FindFirstChild("Type").Name
+			if types == "Melee" then
+				str = str.."/"..i.Name
+			end
+			if types == "Item" then
+				if i:FindFirstChild("Many") == nil then
+					str = str.."/"..i.Name
+				end
+			end
+			
+		end
+	end
+	for _, i in ipairs(location2:GetChildren()) do
+		if i:FindFirstChild("Type") ~= nil then
+			local types = i:FindFirstChild("Type").Value
+			if types == "Armor" then
+				str = str.."/"..i.Name
+			end
+			if types == "Shield" then
+				str = str.."/"..i.Name
+			end
+		end
+	end
+	
+	PlayerData:UpdateAsync(key,function(prev)
+		return str
+	end)
+	
+end
+function module:questload(player)
+	
+	local values = player:FindFirstChild("Space")
+	local currentquest = Instance.new("StringValue")
+	currentquest.Name = "Quest"
+	currentquest.Parent = values
+	
+	--local location = game.ServerStorage.PlayerStuff.Quests
+	local invfold = Instance.new("Folder")
+	invfold.Name = player.Name.."CurrentQuest"
+	invfold.Parent = game.ServerStorage.Inventories
+	--local loc = player:FindFirstChild("Space")
+--	"Kill/1000/10/tenpeople/"
+
+	local ques
+	
+	local success, erro = pcall(function()
+
+		ques = PlayerData:GetAsync("Questc"..player.UserId)
+
+	end)
+	if success == true then
+		print(ques)
+		if ques ~= nil then
+			player.Space.Quest.Value = ques
+				--if values.Quest.Value ~= "" then
+			local li = string.split(player.Space.Quest.Value,"/")
+			for _, i in pairs(li) do 
+				print(i)
+			end
+			local lenth = #li
+			--for _, i in pairs(li) do
+				if tonumber(li[3]) ~= 0 then
+					if li[2] == "Kill" then
+						local str = Instance.new("StringValue",invfold)
+						str.Name = "Type"
+						str.Value = li[2]
+						local intamount = Instance.new("IntValue",invfold)
+						intamount.Value = tonumber(li[3])
+						intamount.Name = "Amount"
+						local intprize = Instance.new("IntValue",invfold)
+						intprize.Value = tonumber(li[4])
+						intprize.Name = "Prize"
+					end
+					if li[2] == "Find" then
+						local str = Instance.new("StringValue",invfold)
+						str.Value = li[2]
+						str.Name = "Type"
+						local intamount = Instance.new("IntValue",invfold)
+						intamount.Value = tonumber(li[3])
+						intamount.Name = "Amount"
+						local strobj = Instance.new("StringValue",invfold)
+						strobj.Value = li[4]
+						strobj.Name = "Object"
+						local intprize = Instance.new("IntValue",invfold)
+						intprize.Value = tonumber(li[5])
+						intprize.Name = "Prize"
+				end
+			else
+				ques = ""
+				player.Space.Quest.Value = ""
+			end
+			
+		else
+			ques = ""
+			player.Space.Quest.Value = ""
+			
+		end
+	end
+	if erro then
+		print("error")
+	end
+	
+end
+
+local function savequest(player)
+	local location = game.ServerStorage.Inventories[player.Name.."CurrentQuest"]
+	local str = ""
+	local key = "Questc"..player.UserId
+	for _, i in pairs(location:GetChildren()) do
+		print(i.Name)
+		print(i.Value)
+		if i:IsA("IntValue") then
+			local turntostr = tostring(i.Value)
+			str = str.."/"..turntostr
+		end
+		if i:IsA("StringValue") then
+			str = str.."/"..i.Value
+			
+		end
+		--return str
+	end
+	print(str)
+	PlayerData:UpdateAsync(key,function(prev)
+		return str
+	end)
+	
+end
+
+
+function module:Save(player)
+	local key = "Invenc021"..player.UserId
+	local tools = {}
+	local invfolder = game.ServerStorage.Inventories[player.Name]
+	local invequips = game.ReplicatedStorage.ClientInv[player.Name.."Equips"]
+	for _, item in ipairs(invfolder:GetChildren()) do
+		table.insert(tools,item.Name)
+	end
+	for _, item in ipairs(invequips:GetChildren()) do
+		if item:FindFirstChild("Many") ~= nil then
+			table.insert(tools,item.Name)
+		end
+	end
+	
+	PlayerData:UpdateAsync(key,function(prev)
+		return tools
+	end)
+	
+	invfolder:Destroy()
+end
+
+
+function module:easysave(player)
+	local key = "Invenc021"..player.UserId
+	local tools = {}
+	local invfolder = game.ServerStorage.Inventories[player.Name]
+	for _, item in ipairs(invfolder:GetChildren()) do
+		table.insert(tools,item.Name)
+	end
+	
+	PlayerData:UpdateAsync(key,function(prev)
+		return tools
+	end)
+	
+end
+
+function module:additem(player,types,item)
+	local serverstorage = game:GetService("ServerStorage")
+	local typa = serverstorage.PlayerStuff:FindFirstChild(types)
+	local invfolder = game.ServerStorage.Inventories[player.Name]
+	local invf = game.ReplicatedStorage.ClientInv[player.Name]
+	local tool = typa[item]
+	if item == "Sword" and invfolder:FindFirstChild("Sword") == nil then
+		--tool:Clone().Parent = player.Backpack
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item == "Shield" and invfolder:FindFirstChild("Shield") == nil then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item == "WarHammer" and invfolder:FindFirstChild("WarHammer") == nil then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item == "Katana" and invfolder:FindFirstChild("Katana") == nil then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item == "Gladius" and invfolder:FindFirstChild("Gladius") == nil then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item == "Rapier" and invfolder:FindFirstChild("Rapier") == nil then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+	if item ~= "Sword" and item ~= "Shield" and item ~= "WarHammer" and item ~= "Katana" and item ~= "Gladius" and item ~= "Rapier" then
+		tool:Clone().Parent = invf
+		tool:Clone().Parent = invfolder
+	end
+end
+
+----------------------------------------------------------------------------------------
+
+function module:changeinfo(player, Name, value)
+	--local pl = game.Players:FindFirstChild(player)
+	local playeruserid = "Player-"..player.UserId
+	print(session[playeruserid][Name])
+	for _, i in pairs(session[playeruserid]) do
+		print(i)
+	end
+	assert(typeof(session[playeruserid][Name]) == typeof(value),"Values do not match")
+	if typeof(session[playeruserid][Name]) == "number" then
+		session[playeruserid][Name] = session[playeruserid][Name] + value
+		if Name == "Cash" then
+			player.Space.Cash.Value = session[playeruserid][Name]
+		end
+		if Name == "Kills" then
+			player.Space.Kills.Value = session[playeruserid][Name]
+		end
+	else
+		session[playeruserid][Name] = value
+	end
+	return
+end
+
+
+
+
+local function savePlayerData(playerUserId,player)
+	
+	if session[playerUserId] then
+		PlayerData:UpdateAsync(playerUserId,function(prev)
+			
+			return session[playerUserId]
+		end)
+		--PlayerData:SetAsync(playerUserId, session[playerUserId])
+	end
+end
+
+local function savexit(player)
+	local playerUserId = "Player-"..player.UserId
+	savePlayerData(playerUserId,player)
+	savequest(player)
+	
+end
+
+local function autosave()
+	while wait(autosavetime) do 
+		for playeruse, data in pairs(session) do
+			savePlayerData(playeruse)
+		end
+	end
+end
+
+spawn(autosave)
+game.Players.PlayerAdded:Connect(addtosession)
+
+
+game.Players.PlayerRemoving:Connect(savexit)
+return module
