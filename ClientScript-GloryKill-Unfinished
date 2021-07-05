@@ -1,0 +1,289 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local RunService = game:GetService("RunService")
+local humanoid = character:WaitForChild("Humanoid")
+local camera = workspace.CurrentCamera
+local debris = game:GetService("Debris")
+local stuff = require(game.StarterPlayer.StarterCharacterScripts.ModuleScript)
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Step
+local update
+local part = Instance.new("Part")
+part.Name = "Cameraz"
+part.Size = Vector3.new(1,1,1)
+part.CanCollide = false
+part.Anchored = true
+part.Massless = true
+part.Transparency = 1
+local state = true
+local instances = 
+	{Sound1 = Instance.new("Sound") ,
+	Sound2 = Instance.new("Sound") ,
+	Sound3 = Instance.new("Sound")}
+
+local audio_Id = {Light_Punch = 7025302988, LiMed_Punch = 743886825, Heavy_Punch = 159504677, Crack = 198606040, Kick = 6548513599}
+
+
+
+local animation_id_Player = {FistA = 7027545501,FistB = 6577666948}
+local animation_id_Victim = {FistAB = 7027541187, FistBB =6674908055}
+
+local GloryAnimationA = Instance.new("Animation")
+
+local GloryAnimationE = Instance.new("Animation")
+
+
+function forcefield(player,duration)
+	local char = player.Character
+	if char then
+		local force = Instance.new("ForceField")
+		force.Visible = true
+		force.Parent = char
+		if duration then
+			debris:AddItem(force,duration)
+		end
+	end
+end
+function ok(playera)
+	print("hey")
+	--punch.Parent = player.Character.Torso
+	
+	playera.CameraMaxZoomDistance = .5
+	playera.Character.Humanoid.WalkSpeed = 0
+	playera.Character.Dodge.Disabled = true
+	playera.Character.LocalScript.Disabled = true
+	playera.Character.Sprint.Disabled = true
+	--local torso = playera.Character.Torso
+	--local playerpos = player.Character.HumanoidRootPart.Position
+	--local attackpos = playera.Character.HumanoidRootPart.Position
+	
+	local trackAttacked1 = playera.Character.Humanoid:LoadAnimation(GloryAnimationE)
+
+
+	wait(.8)
+	trackAttacked1:Play()
+	--punch:Play()
+	wait(.5)
+	--punch:Stop()
+	--punch:Play()
+
+	print("heh")
+	
+	playera.Character.HumanoidRootPart.CFrame = playera.Character.HumanoidRootPart.CFrame * CFrame.Angles(0,math.rad(75),0)--* math.rad(90)
+	local bodyForce = Instance.new("BodyVelocity")
+	bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+	bodyForce.Velocity = playera.Character.HumanoidRootPart.CFrame.LookVector*5
+	bodyForce.Parent = playera.Character.HumanoidRootPart
+	debris:AddItem(bodyForce,.10)
+	playera.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	game.ReplicatedStorage.GloryKill:FireServer(playera)
+	
+	playera.Character.Humanoid.WalkSpeed = 16
+	playera.Character.Dodge.Disabled = false
+	playera.Character.LocalScript.Disabled = false
+	playera.Character.Sprint.Disabled = false
+	playera.CameraMaxZoomDistance = 22.5
+
+end
+
+function near(position)
+	print("hey")
+	local low = 5
+	local playerz = nil
+	local camera = game.Workspace.CurrentCamera
+	for _, i in ipairs(game.Players:GetPlayers()) do
+		if i ~= player then
+			if i and i.Character then 
+				local playerpos = player.Character.HumanoidRootPart.Position
+				local attackpos = i.Character.HumanoidRootPart.Position
+				
+				local distance = (player.Character.Torso.Position - i.Character.Torso.Position).magnitude
+				if distance <= low and i ~= player and i.Character:FindFirstChild("Glory") ~= nil then
+					print("Distance: "..distance)
+					player.Character.HumanoidRootPart.CFrame = i.Character.HumanoidRootPart.CFrame + i.Character.HumanoidRootPart.CFrame.LookVector*2.5 --CFrame.lookAt(playerpos,Vector3.new(attackpos))
+					camera.CFrame = CFrame.new(player.Character.Torso.Position,attackpos)
+					low = distance
+					playerz = i
+					return playerz
+				end
+			end
+		end
+	end
+	return playerz
+end
+
+function neartest(position,var)
+	local low = 5
+	local playerz = game:GetService("Workspace").Noobs:FindFirstChild("Dummy")
+	local camera = game.Workspace.CurrentCamera
+	local playerpos = player.Character.HumanoidRootPart.Position
+	local attackpos = playerz.Head.Position
+	local distance = (player.Character.Torso.Position - playerz.Torso.Position).magnitude
+	
+	if distance <= low and playerz ~= player and playerz:FindFirstChild("Glory") ~= nil then
+			
+		for _, i in ipairs(player.Character:GetChildren()) do
+			if i:IsA("Accessory") then
+				if i:FindFirstChild("Handle") ~= nil then
+					if i.Handle.AccessoryWeld.Part1 == player.Character.Head then
+						i.Handle.Transparency = 1
+					end
+				end
+			end
+		end
+		player.Character.Torso.Transparency = 1
+		player.Character.Head.Transparency = 1
+		player.CameraMaxZoomDistance = .5
+		player.CameraMinZoomDistance = .5
+		camera.CameraType = Enum.CameraType.Scriptable
+		camera.CameraSubject = player.Character.Head
+		if var == "A" then
+			player.Character.HumanoidRootPart.CFrame = (playerz.HumanoidRootPart.CFrame + playerz.HumanoidRootPart.CFrame.LookVector*4)*CFrame.Angles(0,math.rad(180),0) 
+		end
+		if var == "B" then
+			player.Character.HumanoidRootPart.CFrame = (playerz.HumanoidRootPart.CFrame + playerz.HumanoidRootPart.CFrame.LookVector*2.5)*CFrame.Angles(0,math.rad(180),0) 
+		end
+		Step = game:GetService("RunService").RenderStepped:Connect(function()
+			camera.CFrame = CFrame.new(player.Character.Head.Position+Vector3.new(0,1,0),attackpos)	- player.Character.Head.CFrame.LookVector*.5
+		end)
+		
+		--Step:Disconnect()
+		
+		low = distance
+		return playerz
+	end
+end
+
+function cinematic(playerz)
+	
+	--repeat wait() until playerz:FindFirstChild("PlayerGui") ~= nil
+	local tweeninfo = TweenInfo.new(.5,Enum.EasingStyle.Sine,Enum.EasingDirection.In,0)
+	local tweeninfo2 = TweenInfo.new(.5,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0)
+	local place = Instance.new("ScreenGui")
+	local gui = Instance.new("Frame")
+	gui.Size = UDim2.new(0,0,1.15,0)
+	gui.Position = UDim2.new(0,0,-.15,0)
+	gui.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	gui.Parent = place
+	place.Parent = playerz.PlayerGui
+	local tween = TweenService:Create(gui, tweeninfo, {Size = UDim2.new(1,0,1.15,0)})
+	local tween2 = TweenService:Create(gui, tweeninfo2, {Size = UDim2.new(0,0,1.15,0)})
+	tween:Play()
+	wait(.8)
+	tween2:Play()
+	
+	
+end
+
+function ran()
+	local random = math.random(1,100)
+	
+	if random > 50 then
+		return "A"
+	end
+	
+	if random < 50 then
+		return "B"
+	end
+end
+
+
+UserInputService.InputBegan:Connect(function(key, gameProcessed)
+	if gameProcessed then return end
+	if UserInputService:IsKeyDown(Enum.KeyCode.G) and state then
+		local r_ = ran()
+		local glorattato = neartest(player.Character["Torso"].Position,r_)
+		if glorattato ~= nil and glorattato:FindFirstChild("Glory") ~= nil then -- Add Character after glorattato
+			state = false
+			cinematic(player)
+			--wait(1)
+			--local task = coroutine.create(function()
+			--end)
+			--local success, fail = coroutine.resume(task)
+			player.Character.Humanoid.WalkSpeed = 0
+			player.Character.Dodge.Disabled = true
+			player.Character.LocalScript.Disabled = true
+			player.Character.Sprint.Disabled = true
+			forcefield(player,5)
+			
+			if player.Character:FindFirstChildWhichIsA("Tool") == nil then
+				if r_ == "A" then
+					stuff:oktest(glorattato)
+					stuff:FightA(player)
+					stuff:ragdollnpc(glorattato)
+					
+						local bodyForce = Instance.new("BodyVelocity")
+						bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+						bodyForce.Velocity = glorattato.HumanoidRootPart.CFrame.LookVector*-5
+						bodyForce.Parent = glorattato.HumanoidRootPart
+						debris:AddItem(bodyForce,.1)
+				else
+					stuff:oktestB(glorattato)
+					stuff:FightB(player)
+					stuff:ragdollnpc(glorattato)
+					
+						local bodyForce = Instance.new("BodyVelocity")
+						bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+						bodyForce.Velocity = glorattato.HumanoidRootPart.CFrame.LookVector*-5
+						bodyForce.Parent = glorattato.HumanoidRootPart
+						debris:AddItem(bodyForce,.1)
+				end
+
+			elseif player.Character:FindFirstChildWhichIsA("Tool").Type.Value ~= "Melee" then
+				local r_ = ran()
+				if r_ == "A" then
+					stuff:oktest(glorattato)
+					stuff:FightA(player)
+					stuff:ragdollnpc(glorattato)
+					
+					local bodyForce = Instance.new("BodyVelocity")
+					bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+					bodyForce.Velocity = glorattato.HumanoidRootPart.CFrame.LookVector*-5
+					bodyForce.Parent = glorattato.HumanoidRootPart
+					debris:AddItem(bodyForce,.1)
+				else
+					stuff:oktestB(glorattato)
+					stuff:FightB(player)
+					stuff:ragdollnpc(glorattato)
+					
+					local bodyForce = Instance.new("BodyVelocity")
+					bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+					bodyForce.Velocity = glorattato.HumanoidRootPart.CFrame.LookVector*-5
+					bodyForce.Parent = glorattato.HumanoidRootPart
+					debris:AddItem(bodyForce,.1)
+				end
+			end
+			
+			
+			player.Character.Humanoid.WalkSpeed = 16
+			player.Character.Dodge.Disabled = false
+			player.Character.LocalScript.Disabled = false
+			player.Character.Sprint.Disabled = false
+			camera.CameraType = Enum.CameraType.Custom
+			camera.CameraSubject = player.Character.Humanoid
+			player.Character.Head.Transparency = 0
+			player.CameraMaxZoomDistance = 22.5
+			player.CameraMinZoomDistance = .5
+			player.Character.Torso.Transparency = 0
+			player.Character.Head.Transparency = 0
+			Step:Disconnect()
+			for _, i in ipairs(player.Character:GetChildren()) do
+				if i:IsA("Accessory") then
+					if i:FindFirstChild("Handle") ~= nil then
+						if i.Handle.AccessoryWeld.Part1 == player.Character.Head then
+							i.Handle.Transparency = 0
+						end
+					end
+				end
+			end
+			--game.ReplicatedStorage.GloryKill:FireServer(player)
+			state = true
+		end
+	end
+end)
+
+--game.ReplicatedStorage.GloryKill.OnClientEvent:Connect(function()
+
+	
+--end)
