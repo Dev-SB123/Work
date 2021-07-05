@@ -1,0 +1,943 @@
+local parent = script.Parent
+local add = 0
+local playergu = game.Players.LocalPlayer.PlayerGui
+local playera = game:GetService("Players").LocalPlayer
+local equamo = 0
+local ads = 0
+local itemlist = {"Item1","Item2","Item3"}
+
+local sound = Instance.new("Sound",parent)
+sound.SoundId = "rbxassetid://452267918"
+if not sound.IsLoaded then
+	sound.Loaded:wait()
+end
+sound.Volume = 4
+
+local sound1 = Instance.new("Sound",parent)
+sound1.SoundId = "rbxassetid://421058925"
+if not sound1.IsLoaded then
+	sound1.Loaded:wait()
+end
+sound1.Volume = 4
+
+--functions anchors the parts it stays still
+function anch(item)
+	--item means the model or part
+	for _, part in ipairs(item:GetChildren()) do
+		-- it is going to check for that item if it has multiple parts
+		if part:IsA("Part") then
+			part.Anchored = true
+		end
+		if part:IsA("UnionOperation") then
+			part.Anchored = true
+		end
+	end
+end
+
+function work()
+	add = 0
+	local amount = 0
+
+	local players = game.Players.LocalPlayer
+	local currentload = players.Space.Currentloadout.Value
+	local li = string.split(currentload,"/")
+
+	for i, frame in ipairs(parent.ScrollingFrame:GetChildren()) do
+		frame:Destroy()
+	end
+
+	local players = game.Players.LocalPlayer
+	local curr = game.ReplicatedStorage.ClientInv[players.Name.."Equips"] or game.ReplicatedStorage.ClientInv[players.Name.."Equips"]:Wait()
+	local inventory = game.ReplicatedStorage.ClientInv[players.Name] or game.ReplicatedStorage.ClientInv[players.Name]:Wait()
+	for i, items in ipairs(inventory:GetChildren()) do
+		if items.Type.Value == "Item" and items:FindFirstChild("Many") == nil then
+
+			local frame = Instance.new("ImageButton")
+			local text = Instance.new("TextLabel",frame)
+			text.BackgroundTransparency = 1
+			text.Text = items.Name
+			--text.Name = items.Name
+			text.TextScaled = true
+			text.Size = UDim2.new(1,0,.2,0)
+			frame.Size = UDim2.new(.8,0,.05,0)
+			frame.Position = UDim2.new(.1,0,.01+add,0)
+			frame.Parent = parent.ScrollingFrame
+			frame.Name = items.Name
+			frame.BackgroundColor3 = Color3.fromRGB(145, 135, 23)
+			add = add + .06
+
+			local frame1 = Instance.new("ImageButton")
+			frame1.Size = UDim2.new(.1,0,.1,0)
+			frame1.Position = UDim2.new(.85,0,.85,0)
+			frame1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			frame1.Parent = frame
+			frame1.Name = items.Name.."oh"
+
+		end
+		if items:FindFirstChild("Many") ~= nil then
+			local name = items.Name
+			if parent.ScrollingFrame:FindFirstChild(items.Name) == nil then
+				for _, i in ipairs(inventory:GetChildren()) do
+					if name == i.Name then
+						amount = amount + 1
+					end
+				end
+
+				local frame = Instance.new("ImageButton")
+				local text = Instance.new("TextLabel",frame)
+				text.BackgroundTransparency = 1
+				text.Text = amount.." "..items.Name
+				--text.Name = items.Name
+				text.TextScaled = true
+				text.Size = UDim2.new(1,0,.2,0)
+				frame.Size = UDim2.new(.8,0,.05,0)
+				frame.Position = UDim2.new(.1,0,.01+add,0)
+				frame.Parent = parent.ScrollingFrame
+				frame.Name = items.Name
+				add = add + .06
+				amount = 0
+			end
+		end
+
+
+	end
+
+	for _, i in ipairs(li) do
+		if parent.ScrollingFrame:FindFirstChild(i) ~= nil then
+			local frame = parent.ScrollingFrame:FindFirstChild(i)
+			local name = frame.Name
+			local frame2 = frame:FindFirstChild(name.."oh")
+			frame2.BackgroundColor3 = Color3.fromRGB(0,70,4)
+		end
+	end
+
+	for _, items in ipairs(parent.ScrollingFrame:GetChildren()) do
+		items.MouseButton1Click:Connect(function()
+			local name = items.Name
+			if items:FindFirstChild(items.Name.."oh") ~= nil then
+				if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(0,70,4) then
+					items:FindFirstChild(items.Name.."oh").BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+					parent.RemoteEvent:FireServer(false,name,"NO")
+					addtoply("Itemhold",name,playera,"Y")
+				end
+				if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(70, 70, 70) and curr:FindFirstChild(items.Name) == nil then
+					local tool = game.ReplicatedStorage.ClientInv[playera.Name]
+					local t = tool:FindFirstChild(name)
+					if game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren() ~= nil then
+						--parent.RemoteEvent:FireServer(false)
+						for _, item in ipairs(game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren()) do
+
+							if item.Type.Value == "Item" then
+
+								if t == nil and item == nil then
+									return
+								end
+
+								if item:FindFirstChild("Many") == nil and t:FindFirstChild("Many") == nil then
+									local nam = item.Name
+
+									for _, item in ipairs(parent.ScrollingFrame:GetChildren()) do
+										print("hey")
+										if curr:FindFirstChild(item.Name) ~= nil then
+											local fram2 = item:FindFirstChild(item.Name.."oh")
+											fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+											parent.RemoteEvent:FireServer(false,item.Name,"NO")
+											--item:Destroy()
+										end
+									end	
+
+									--local findframe = parent.ScrollingFrame:FindFirstChild(nam)
+									--local fram2 = findframe:FindFirstChild(nam.."oh")
+									--fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+
+									--parent.RemoteEvent:FireServer(false,nam,"NO")
+
+									--item:Destroy()
+								end
+								--Error it works it is just gets eror but does work fix to make better
+								if item:FindFirstChild("Many") ~= nil and t:FindFirstChild("Many") ~= nil then
+
+									local nam = item.Name
+									local amount = 0
+									--script.Parent.ScrollingFrame:FindFirstChild(name).Amount
+
+									--local sum = tonumber(amount.Text)
+
+									--sum = sum - 1
+
+									--amount.Text = sum
+									if equamo == 3 then
+										print(equamo)
+										local nams = item.Name
+										--local amoun = script.Parent.ScrollingFrame:FindFirstChild(nams).Amount
+										--local su =  tonumber(amoun.Text)
+										--su = su + 1
+										--amoun.Text = su
+										print("errrrrrraaas")
+										equamo = equamo -1
+										parent.RemoteEvent:FireServer("addback",nams,"Many")
+
+										wait(.2)
+										upda(nams)
+										--upda()
+										--item.Parent = tool
+									end
+
+								end
+
+							end
+
+						end	
+					end	
+
+					if t:FindFirstChild("Many") == nil then
+						local place = game.ReplicatedStorage.ClientInv[playera.Name]
+
+						local findframe = parent.ScrollingFrame:FindFirstChild(name)
+						local fram2 = findframe:FindFirstChild(name.."oh")
+						fram2.BackgroundColor3 = Color3.fromRGB(0, 70, 4)
+
+						addtoply("Itemhold",name,playera)
+						parent.RemoteEvent:FireServer(true,name,"NO")
+						--local clone = place:FindFirstChild(name):Clone()
+						--clone.Parent = playera.Backpack
+					else
+						local name3 = t.Name
+						equamo = equamo + 1
+						print("erjojaja")
+						addtoply("Itemhold",name,playera)
+						parent.RemoteEvent:FireServer(true,name3,"Many")
+						wait(.2)
+						upda(name3)
+						--upda()
+						--parent.RemoteEvent:FireServer("addback",nams,"Many")
+						--t.Parent = playera.Backpack
+
+
+					end
+				end
+			else
+				local tool = game.ReplicatedStorage.ClientInv[playera.Name]
+				local t = tool:FindFirstChild(name)
+				if game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren() ~= nil then
+					--parent.RemoteEvent:FireServer(false)
+					for _, item in ipairs(game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren()) do
+
+						if item.Type.Value == "Item" then
+
+							if t == nil and item == nil then
+								return
+							end
+
+							--Error it works it is just gets eror but does work fix to make better
+							if item:FindFirstChild("Many") ~= nil then
+
+								local nam = item.Name
+								local amount = 0
+								--script.Parent.ScrollingFrame:FindFirstChild(name).Amount
+
+								--local sum = tonumber(amount.Text)
+
+								--sum = sum - 1
+
+								--amount.Text = sum
+								if equamo == 3 then
+									print(equamo)
+									local nams = item.Name
+									--local amoun = script.Parent.ScrollingFrame:FindFirstChild(nams).Amount
+									--local su =  tonumber(amoun.Text)
+									--su = su + 1
+									--amoun.Text = su
+									print("errrrrrraaas")
+									equamo = equamo -1
+									parent.RemoteEvent:FireServer("addback",nams,"Many")
+
+									wait(.2)
+									upda(nams)
+									--upda()
+									--item.Parent = tool
+								end
+
+							end
+
+						end
+
+					end	
+				end	
+
+				if t:FindFirstChild("Many") ~= nil then
+					local name3 = t.Name
+					equamo = equamo + 1
+					print("erjojaja")
+					addtoply("Itemhold",name,playera)
+					parent.RemoteEvent:FireServer(true,name3,"Many")
+					wait(.2)
+					upda(name3)
+					--upda()
+					--parent.RemoteEvent:FireServer("addback",nams,"Many")
+					--t.Parent = playera.Backpack
+
+
+				end
+			end
+		end)
+
+	end
+
+end
+function upda(frame)
+	local name = frame
+	print(name)
+	local amon = 0
+	local location = playera.PlayerGui.Title.Inventory.ScrollingFrame
+	if game.ReplicatedStorage.ClientInv[playera.Name]:FindFirstChild(frame) ~= nil then
+		for _, i in ipairs(game.ReplicatedStorage.ClientInv[playera.Name]:GetChildren()) do
+			if i.Name == name then
+				amon = amon + 1	
+			end
+		end
+		if location:FindFirstChild(frame) ~= nil then
+			location:FindFirstChild(frame).TextLabel.Text = amon..name
+		end
+	end
+	if game.ReplicatedStorage.ClientInv[playera.Name]:FindFirstChild(frame) == nil then
+		work()
+	end
+	--if location:FindFirstChild(frame) ~= nil then
+		--location:FindFirstChild(frame).TextLabel.Text = amon..name
+	--end
+end
+
+function unanc(item)
+	for _, part in pairs(item:GetChildren()) do
+		if part:IsA("Part") then
+			part.Anchored = false
+		end
+	end
+end
+function addtoply(dummy,item,player,remove)
+	local inventory = game.ReplicatedStorage.ClientInv[player.Name]
+	local clone = inventory:FindFirstChild(item):Clone()
+	if dummy == "NoobHolder" then
+		if clone.Type.Value == "Melee" then
+			local place = game.Workspace:FindFirstChild(dummy)
+			local fram = CFrame.new(place["Right Arm"].Position)
+			if place["Right Arm"]:FindFirstChildWhichIsA("Tool") ~= nil then
+				for _, itemb in ipairs(place["Right Arm"]:GetChildren()) do
+					itemb:Destroy()
+				end
+			end
+			if remove == nil then
+				clone.Parent =  place["Right Arm"]
+				if clone:FindFirstChild("Mesh") ~= nil then
+					clone.Mesh.Anchored = true
+					clone.Mesh.Position = place["Right Arm"].Position --+ Vector3.new(0,2,1)
+					clone.Mesh.CFrame = clone.Mesh.CFrame + Vector3.new(0,2,1)
+				else
+					clone.Model:SetPrimaryPartCFrame(fram+Vector3.new(0,0,1))
+					anch(clone.Model)
+				end
+			end
+			--clone.Anchored = true
+		end
+		if clone.Type.Value == "Armor" then
+			local place = game.Workspace:FindFirstChild(dummy)
+			local fram = CFrame.new(place["Torso"].Position)
+			if place["Torso"]:FindFirstChildWhichIsA("Model") ~= nil then
+				for _, itemb in ipairs(place["Torso"]:GetChildren()) do
+					itemb:Destroy()
+				end
+			end
+			if remove == nil then
+				clone.Parent =  place["Torso"]
+				
+				anch(clone)
+				clone:SetPrimaryPartCFrame(fram)
+			end
+			--clone.PrimaryPart.Anchored = true
+			--clone.Mesh.Anchored = true
+			--clone.Mesh.Position = place["Torso"].Position --+ Vector3.new(0,2,1)
+			--clone.Mesh.CFrame = clone.Mesh.CFrame + Vector3.new(0,2,1)
+			--clone.Anchored = true
+		end
+		if clone.Type.Value == "Shield" then
+			local place = game.Workspace:FindFirstChild(dummy)
+			local fram = CFrame.new(place["Left Arm"].Position.X + .5,place["Left Arm"].Position.Y,place["Left Arm"].Position.Z + 1)--* CFrame.Angles(math.rad(270),math.rad(180),0)-- + CFrame.new(0,0,-.2)
+			if place["Left Arm"]:FindFirstChildWhichIsA("Model") ~= nil then
+				for _, itemb in ipairs(place["Left Arm"]:GetChildren()) do
+					itemb:Destroy()
+				end
+			end
+			if remove == nil then
+				clone.Parent =  place["Left Arm"]
+				
+				
+				anch(clone)
+				clone:SetPrimaryPartCFrame(fram)
+			end
+			--clone.Mesh.Anchored = true
+			--clone.Mesh.Position = place["Left Arm"].Position --+ Vector3.new(0,2,1)
+			--clone.Mesh.CFrame = clone.Mesh.CFrame + Vector3.new(0,2,1)
+			--clone.Anchored = true
+		end
+		
+	end
+	if dummy == "Itemhold" and clone:FindFirstChild("Many" )~= nil then
+		local clon = game.ReplicatedStorage.Shop.Items:FindFirstChild(item):Clone()
+		print(ads)
+		ads = ads+ 1
+		local itemz = itemlist[ads]
+		local itemz2 = itemlist[ads -1]
+		local place = game.Workspace:FindFirstChild(dummy)
+		local pla = place:FindFirstChild(itemz)
+		
+		local cfram = pla.CFrame + Vector3.new(0,0,1)
+		if pla:FindFirstChildWhichIsA("Model") ~= nil then
+			for _, itemd in ipairs(pla:GetChildren()) do
+				itemd:Destroy()
+				unanc(itemd)
+			end
+		end
+		--if remove == nil then
+			--clone.PrimaryPart = clone.Handle
+			anch(clon)
+			clon:SetPrimaryPartCFrame(cfram)
+			--clon.PrimaryPart.Anchored = true
+			--clone:SetPrimaryPartCFrame(Cf)
+			clon.Parent = pla
+			print(ads)
+			if ads == 3 then
+				ads = 0
+			end
+		--end
+
+	end
+	if dummy == "Itemhold" and clone:FindFirstChild("Many" )== nil  then
+		local pala = game.Workspace:FindFirstChild(dummy)
+		if pala.Main:FindFirstChildWhichIsA("UnionOperation") ~= nil or pala.Main:FindFirstChildWhichIsA("Part") then
+			for _, itema in ipairs(pala.Main:GetChildren()) do
+				itema:Destroy()
+			end
+		end
+		if remove == nil then
+			local han = clone:FindFirstChild("Handle")
+			han.Parent = pala.Main
+			han.Position = pala.Main.Position + Vector3.new(0,0,1)
+			han.Anchored = true
+		end
+	end
+	
+end
+parent.Frame.Weapons.MouseButton1Click:Connect(function(player)
+	add = 0
+	sound1:Play()
+	for i, frame in ipairs(parent.ScrollingFrame:GetChildren()) do
+		frame:Destroy()
+	end
+	local players = game.Players.LocalPlayer
+	local curr = game.ReplicatedStorage.ClientInv[players.Name.."Equips"] or game.ReplicatedStorage.ClientInv[players.Name.."Equips"]:Wait()
+	local currentload = players.Space.Currentloadout.Value
+	local li = string.split(currentload,"/")
+	local inventory = game.ReplicatedStorage.ClientInv[players.Name] or game.ReplicatedStorage.ClientInv[players.Name]:Wait()
+	for i, items in ipairs(inventory:GetChildren()) do
+		if items.Type.Value == "Melee" then
+			local frame = Instance.new("ImageButton")
+			local text = Instance.new("TextLabel",frame)
+			text.BackgroundTransparency = 1
+			text.Text = items.Name
+			text.TextScaled = true
+			text.Size = UDim2.new(1,0,.2,0)
+			frame.Size = UDim2.new(.8,0,.05,0)
+			frame.Position = UDim2.new(.1,0,.01+add,0)
+			--frame.Image = 
+			frame.Parent = parent.ScrollingFrame
+			frame.Name = items.Name
+			add = add + .06
+			
+			local frame1 = Instance.new("Frame")
+			frame1.Size = UDim2.new(.1,0,.1,0)
+			frame1.Position = UDim2.new(.85,0,.85,0)
+			frame1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			frame1.Parent = frame
+			frame1.Name = items.Name.."oh"
+			
+		end
+	end
+	
+	for _, i in ipairs(li) do
+		if parent.ScrollingFrame:FindFirstChild(i) ~= nil then
+			local frame = parent.ScrollingFrame:FindFirstChild(i)
+			local name = frame.Name
+			local frame2 = frame:FindFirstChild(name.."oh")
+			frame2.BackgroundColor3 = Color3.fromRGB(0,70,4)
+		end
+	end
+
+	
+	for _, items in ipairs(parent.ScrollingFrame:GetChildren()) do
+		items.MouseButton1Click:Connect(function()
+			sound:Play()
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(0,70,4) then
+				items:FindFirstChild(items.Name.."oh").BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				parent.RemoteEvent:FireServer(false,items.Name,"NO")
+				addtoply("NoobHolder",items.Name,playera,"Y")
+			end
+			
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(70, 70, 70) and curr:FindFirstChild(items.Name) == nil then
+				local name = items.TextLabel.Text
+				
+				if game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren() ~= nil then
+					print("tool")
+					--parent.RemoteEvent:FireServer(false)
+					for _, item in ipairs(parent.ScrollingFrame:GetChildren()) do
+						if curr:FindFirstChild(item.Name) ~= nil then	
+							local fram2 = item:FindFirstChild(item.Name.."oh")
+							fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+							
+							parent.RemoteEvent:FireServer(false,item.Name,"NO")
+							--item:Destroy()
+						end
+					end	
+				end	
+				sound:Play()
+				local findframe = parent.ScrollingFrame:FindFirstChild(name)
+				local fram2 = findframe:FindFirstChild(name.."oh")
+				fram2.BackgroundColor3 = Color3.fromRGB(0, 70, 4)
+				
+				local place = game.ReplicatedStorage.ClientInv[playera.Name]
+				addtoply("NoobHolder",name,playera)
+				parent.RemoteEvent:FireServer(true,name,"NO")
+				script.Parent.loadout:FireServer()
+				--local clone = place:FindFirstChild(name):Clone()
+				--clone.Parent = playera.Backpack
+				--return
+			end
+			
+		end)			
+	end	
+end)
+parent.Frame.Shields.MouseButton1Click:Connect(function(player)
+	add = 0
+	sound1:Play()
+	for i, frame in ipairs(parent.ScrollingFrame:GetChildren()) do
+		frame:Destroy()
+	end
+	local players = game.Players.LocalPlayer
+	local curr = game.ReplicatedStorage.ClientInv[players.Name.."Accessories"] or game.ReplicatedStorage.ClientInv[players.Name.."Accessories"]:Wait()
+	local currentload = players.Space.Currentloadout.Value
+	local li = string.split(currentload,"/")
+	local inventory = game.ReplicatedStorage.ClientInv[players.Name] or game.ReplicatedStorage.ClientInv[players.Name]:Wait()
+	for i, items in ipairs(inventory:GetChildren()) do
+		if items.Type.Value == "Shield" then
+			local frame = Instance.new("ImageButton")
+			local text = Instance.new("TextLabel",frame)
+			text.BackgroundTransparency = 1
+			text.Text = items.Name
+			text.TextScaled = true
+			text.Size = UDim2.new(1,0,.2,0)
+			frame.Size = UDim2.new(.8,0,.05,0)
+			frame.Position = UDim2.new(.1,0,.01+add,0)
+			frame.Parent = parent.ScrollingFrame
+			frame.Name = items.Name
+			add = add + .06
+			
+			local frame1 = Instance.new("ImageButton")
+			frame1.Size = UDim2.new(.1,0,.1,0)
+			frame1.Position = UDim2.new(.85,0,.85,0)
+			frame1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			frame1.Parent = frame
+			frame1.Name = items.Name.."oh"
+			
+		end
+	end
+	
+	for _, i in ipairs(li) do
+		if parent.ScrollingFrame:FindFirstChild(i) ~= nil then
+			local frame = parent.ScrollingFrame:FindFirstChild(i)
+			local name = frame.Name
+			local frame2 = frame:FindFirstChild(name.."oh")
+			frame2.BackgroundColor3 = Color3.fromRGB(0,70,4)
+		end
+	end
+
+	for _, items in ipairs(parent.ScrollingFrame:GetChildren()) do
+		items.MouseButton1Click:Connect(function()
+			sound:Play()
+			local name = items.TextLabel.Text
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(0,70,4) then
+				items:FindFirstChild(items.Name.."oh").BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				parent.RemoteEvent:FireServer(false,name,"NO")
+				addtoply("NoobHolder",name,playera,"Y")
+			end
+			
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(70, 70, 70) and curr:FindFirstChild(items.Name) == nil then
+
+				if game.ReplicatedStorage.ClientInv[playera.Name.."Accessories"]:GetChildren() ~= nil then
+					print("tool")
+					--parent.RemoteEvent:FireServer(false)
+					for _, item in ipairs(parent.ScrollingFrame:GetChildren()) do
+						if curr:FindFirstChild(item.Name) ~= nil then
+							local name2 = item.Name
+							local fram2 = item:FindFirstChild(name2.."oh")
+							fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+							
+							parent.RemoteEvent:FireServer(false,name2,"NO")
+							--item:Destroy()
+						end
+					end	
+				end	
+				
+				local findframe = parent.ScrollingFrame:FindFirstChild(name)
+				local fram2 = findframe:FindFirstChild(name.."oh")
+				fram2.BackgroundColor3 = Color3.fromRGB(0, 70, 4)
+				
+				local place = game.ReplicatedStorage.ClientInv[playera.Name]
+				addtoply("NoobHolder",name,playera)
+				parent.RemoteEvent:FireServer(true,name,"NO")
+				script.Parent.loadout:FireServer()
+				--local clone = place:FindFirstChild(name):Clone()
+				--clone.Parent = playera.Backpack
+				--return
+			end
+		end)			
+	end	
+end)
+parent.Frame.Armor.MouseButton1Click:Connect(function(player)
+	add = 0
+	sound1:Play()
+	for i, frame in ipairs(parent.ScrollingFrame:GetChildren()) do
+		frame:Destroy()
+	end
+	local players = game.Players.LocalPlayer
+	local curr = game.ReplicatedStorage.ClientInv[players.Name.."Accessories"] or game.ReplicatedStorage.ClientInv[players.Name.."Accessories"]:Wait()
+	local currentload = players.Space.Currentloadout.Value
+	local li = string.split(currentload,"/")
+	local inventory = game.ReplicatedStorage.ClientInv[players.Name] or game.ReplicatedStorage.ClientInv[players.Name]:Wait()
+	for i, items in ipairs(inventory:GetChildren()) do
+		if items.Type.Value == "Armor" then
+			local frame = Instance.new("ImageButton")
+			local text = Instance.new("TextLabel",frame)
+			text.BackgroundTransparency = 1
+			text.Text = items.Name
+			text.TextScaled = true
+			text.Size = UDim2.new(1,0,.2,0)
+			frame.Size = UDim2.new(.8,0,.05,0)
+			frame.Position = UDim2.new(.1,0,.01+add,0)
+			frame.Parent = parent.ScrollingFrame
+			frame.Name = items.Name
+			add = add + .06
+			
+			local frame1 = Instance.new("ImageButton")
+			frame1.Size = UDim2.new(.1,0,.1,0)
+			frame1.Position = UDim2.new(.85,0,.85,0)
+			frame1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			frame1.Parent = frame
+			frame1.Name = items.Name.."oh"
+			
+		end
+	end
+	
+	for _, i in ipairs(li) do
+		if parent.ScrollingFrame:FindFirstChild(i) ~= nil then
+			local frame = parent.ScrollingFrame:FindFirstChild(i)
+			local name = frame.Name
+			local frame2 = frame:FindFirstChild(name.."oh")
+			frame2.BackgroundColor3 = Color3.fromRGB(0,70,4)
+		end
+	end
+
+	for _, items in ipairs(parent.ScrollingFrame:GetChildren()) do
+		items.MouseButton1Click:Connect(function()
+			sound:Play()
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(0,70,4) then
+				items:FindFirstChild(items.Name.."oh").BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				parent.RemoteEvent:FireServer(false,items.Name,"NO")
+				addtoply("NoobHolder",items.Name,playera,"Y")
+			end
+
+			if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(70, 70, 70) and curr:FindFirstChild(items.Name) == nil then
+				local name = items.TextLabel.Text
+
+				
+					--parent.RemoteEvent:FireServer(false)
+				if game.ReplicatedStorage.ClientInv[playera.Name.."Accessories"]:GetChildren() ~= nil then
+					print("tool")
+						--parent.RemoteEvent:FireServer(false)
+					for _, item in ipairs(parent.ScrollingFrame:GetChildren()) do
+							if curr:FindFirstChild(item.Name) ~= nil then
+								local name2 = item.Name
+								local fram2 = item:FindFirstChild(name2.."oh")
+								fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+
+								parent.RemoteEvent:FireServer(false,name2,"NO")
+								--item:Destroy()
+							end
+						end	
+				end	
+				
+				local findframe = parent.ScrollingFrame:FindFirstChild(name)
+				local fram2 = findframe:FindFirstChild(name.."oh")
+				fram2.BackgroundColor3 = Color3.fromRGB(0, 70, 4)
+
+				local place = game.ReplicatedStorage.ClientInv[playera.Name]
+				addtoply("NoobHolder",name,playera)
+				parent.RemoteEvent:FireServer(true,name,"NO")
+				--local clone = place:FindFirstChild(name):Clone()
+				--clone.Parent = playera.Backpack
+				--return
+			end
+		end)			
+	end	
+end)
+parent.Frame.Items.MouseButton1Click:Connect(function(player)
+	add = 0
+	local amount = 0
+	sound1:Play()
+	local players = game.Players.LocalPlayer
+	local currentload = players.Space.Currentloadout.Value
+	local li = string.split(currentload,"/")
+	
+	for i, frame in ipairs(parent.ScrollingFrame:GetChildren()) do
+		frame:Destroy()
+	end
+	
+	local players = game.Players.LocalPlayer
+	local curr = game.ReplicatedStorage.ClientInv[players.Name.."Equips"] or game.ReplicatedStorage.ClientInv[players.Name.."Equips"]:Wait()
+	local inventory = game.ReplicatedStorage.ClientInv[players.Name] or game.ReplicatedStorage.ClientInv[players.Name]:Wait()
+	for i, items in ipairs(inventory:GetChildren()) do
+		if items.Type.Value == "Item" and items:FindFirstChild("Many") == nil then
+			
+			local frame = Instance.new("ImageButton")
+			local text = Instance.new("TextLabel",frame)
+			text.BackgroundTransparency = 1
+			text.Text = items.Name
+			--text.Name = items.Name
+			text.TextScaled = true
+			text.Size = UDim2.new(1,0,.2,0)
+			frame.Size = UDim2.new(.8,0,.05,0)
+			frame.Position = UDim2.new(.1,0,.01+add,0)
+			frame.Parent = parent.ScrollingFrame
+			frame.Name = items.Name
+			frame.BackgroundColor3 = Color3.fromRGB(145, 135, 23)
+			add = add + .06
+			
+			local frame1 = Instance.new("ImageButton")
+			frame1.Size = UDim2.new(.1,0,.1,0)
+			frame1.Position = UDim2.new(.85,0,.85,0)
+			frame1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			frame1.Parent = frame
+			frame1.Name = items.Name.."oh"
+			
+		end
+		if items:FindFirstChild("Many") ~= nil then
+			local name = items.Name
+			if parent.ScrollingFrame:FindFirstChild(items.Name) == nil then
+				for _, i in ipairs(inventory:GetChildren()) do
+					if name == i.Name then
+						amount = amount + 1
+					end
+				end
+				
+				local frame = Instance.new("ImageButton")
+				local text = Instance.new("TextLabel",frame)
+				text.BackgroundTransparency = 1
+				text.Text = amount.." "..items.Name
+				--text.Name = items.Name
+				text.TextScaled = true
+				text.Size = UDim2.new(1,0,.2,0)
+				frame.Size = UDim2.new(.8,0,.05,0)
+				frame.Position = UDim2.new(.1,0,.01+add,0)
+				frame.Parent = parent.ScrollingFrame
+				frame.Name = items.Name
+				add = add + .06
+				amount = 0
+			end
+		end
+		
+		
+	end
+	
+	for _, i in ipairs(li) do
+		if parent.ScrollingFrame:FindFirstChild(i) ~= nil then
+			local frame = parent.ScrollingFrame:FindFirstChild(i)
+			local name = frame.Name
+			local frame2 = frame:FindFirstChild(name.."oh")
+			frame2.BackgroundColor3 = Color3.fromRGB(0,70,4)
+		end
+	end
+	
+	for _, items in ipairs(parent.ScrollingFrame:GetChildren()) do
+		items.MouseButton1Click:Connect(function()
+			sound:Play()
+			local name = items.Name
+			if items:FindFirstChild(items.Name.."oh") ~= nil then
+				if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(0,70,4) then
+					items:FindFirstChild(items.Name.."oh").BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+					parent.RemoteEvent:FireServer(false,name,"NO")
+					addtoply("Itemhold",name,playera,"Y")
+				end
+				if items:FindFirstChild(items.Name.."oh").BackgroundColor3 == Color3.fromRGB(70, 70, 70) and curr:FindFirstChild(items.Name) == nil then
+					local tool = game.ReplicatedStorage.ClientInv[playera.Name]
+					local t = tool:FindFirstChild(name)
+					if game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren() ~= nil then
+						--parent.RemoteEvent:FireServer(false)
+						for _, item in ipairs(game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren()) do
+							
+							if item.Type.Value == "Item" then
+								
+								if t == nil and item == nil then
+									return
+								end
+								
+								if item:FindFirstChild("Many") == nil and t:FindFirstChild("Many") == nil then
+									local nam = item.Name
+									
+									for _, item in ipairs(parent.ScrollingFrame:GetChildren()) do
+										print("hey")
+										if curr:FindFirstChild(item.Name) ~= nil then
+											local fram2 = item:FindFirstChild(item.Name.."oh")
+											fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+											parent.RemoteEvent:FireServer(false,item.Name,"NO")
+											--item:Destroy()
+										end
+									end	
+									
+									--local findframe = parent.ScrollingFrame:FindFirstChild(nam)
+									--local fram2 = findframe:FindFirstChild(nam.."oh")
+									--fram2.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+									
+									--parent.RemoteEvent:FireServer(false,nam,"NO")
+									
+									--item:Destroy()
+								end
+								--Error it works it is just gets eror but does work fix to make better
+								if item:FindFirstChild("Many") ~= nil and t:FindFirstChild("Many") ~= nil then
+									
+									local nam = item.Name
+									local amount = 0
+										--script.Parent.ScrollingFrame:FindFirstChild(name).Amount
+					
+									--local sum = tonumber(amount.Text)
+									
+									--sum = sum - 1
+								
+									--amount.Text = sum
+									if equamo == 3 then
+										print(equamo)
+										local nams = item.Name
+										--local amoun = script.Parent.ScrollingFrame:FindFirstChild(nams).Amount
+										--local su =  tonumber(amoun.Text)
+										--su = su + 1
+										--amoun.Text = su
+										print("errrrrrraaas")
+										equamo = equamo -1
+										parent.RemoteEvent:FireServer("addback",nams,"Many")
+										
+										wait(.2)
+										upda(nams)
+										--upda()
+										--item.Parent = tool
+									end
+									
+								end
+								
+							end
+							
+						end	
+					end	
+					
+					if t:FindFirstChild("Many") == nil then
+						local place = game.ReplicatedStorage.ClientInv[playera.Name]
+
+						local findframe = parent.ScrollingFrame:FindFirstChild(name)
+						local fram2 = findframe:FindFirstChild(name.."oh")
+						fram2.BackgroundColor3 = Color3.fromRGB(0, 70, 4)
+
+						addtoply("Itemhold",name,playera)
+						parent.RemoteEvent:FireServer(true,name,"NO")
+						--local clone = place:FindFirstChild(name):Clone()
+						--clone.Parent = playera.Backpack
+					else
+						local name3 = t.Name
+						equamo = equamo + 1
+						print("erjojaja")
+						addtoply("Itemhold",name,playera)
+						parent.RemoteEvent:FireServer(true,name3,"Many")
+						wait(.2)
+						upda(name3)
+						--upda()
+						--parent.RemoteEvent:FireServer("addback",nams,"Many")
+						--t.Parent = playera.Backpack
+
+
+					end
+				end
+			else
+				local tool = game.ReplicatedStorage.ClientInv[playera.Name]
+				local t = tool:FindFirstChild(name)
+				if game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren() ~= nil then
+					--parent.RemoteEvent:FireServer(false)
+					for _, item in ipairs(game.ReplicatedStorage.ClientInv[playera.Name.."Equips"]:GetChildren()) do
+
+						if item.Type.Value == "Item" then
+
+							if t == nil and item == nil then
+								return
+							end
+
+							--Error it works it is just gets eror but does work fix to make better
+							if item:FindFirstChild("Many") ~= nil then
+
+								local nam = item.Name
+								local amount = 0
+								--script.Parent.ScrollingFrame:FindFirstChild(name).Amount
+
+								--local sum = tonumber(amount.Text)
+
+								--sum = sum - 1
+
+								--amount.Text = sum
+								if equamo == 3 then
+									print(equamo)
+									local nams = item.Name
+									--local amoun = script.Parent.ScrollingFrame:FindFirstChild(nams).Amount
+									--local su =  tonumber(amoun.Text)
+									--su = su + 1
+									--amoun.Text = su
+									print("errrrrrraaas")
+									equamo = equamo -1
+									parent.RemoteEvent:FireServer("addback",nams,"Many")
+
+									wait(.2)
+									upda(nams)
+									--upda()
+									--item.Parent = tool
+								end
+
+							end
+
+						end
+
+					end	
+				end	
+
+				if t:FindFirstChild("Many") ~= nil then
+					local name3 = t.Name
+					equamo = equamo + 1
+					print("erjojaja")
+					addtoply("Itemhold",name,playera)
+					parent.RemoteEvent:FireServer(true,name3,"Many")
+					wait(.2)
+					upda(name3)
+					--upda()
+					--parent.RemoteEvent:FireServer("addback",nams,"Many")
+					--t.Parent = playera.Backpack
+
+
+				end
+			end
+		end)
+			
+	end
+	
+end)
