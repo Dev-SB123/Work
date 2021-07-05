@@ -1,0 +1,233 @@
+local module = {}
+
+
+local debris = game:GetService("Debris")
+
+local GloryAnimationA = Instance.new("Animation")
+
+local GloryAnimationE = Instance.new("Animation")
+
+
+local instances = 
+	{Sound1 = Instance.new("Sound") ,
+		Sound2 = Instance.new("Sound") ,
+		Sound3 = Instance.new("Sound")}
+
+local audio_Id = {Light_Punch = 7025302988, LiMed_Punch = 743886825, Heavy_Punch = 159504677, Crack = 198606040, Kick = 6548513599}
+
+
+local animation_id_Player = {FistA = 7027545501,FistB = 6577666948}
+local animation_id_Victim = {FistAB = 7027541187, FistBB =6674908055}
+
+function module:ragdollnpc(npc)
+
+	local character = npc
+	local ragdoll = game.ReplicatedStorage.RagdollEE
+
+	for i, parts in ipairs(character:GetChildren()) do
+		if parts.Name == "Head" or parts.Name == "HumanoidRootPart" then
+			--	print(parts)
+			if ragdoll:FindFirstChild(parts.Name) ~= nil then
+				--			print("it passed")
+				local clone = ragdoll:FindFirstChild(parts.Name):Clone()
+				local weld = Instance.new("Weld")
+				clone.Parent = parts
+				clone.Name = parts.Name.."Collide"
+				clone.Anchored = false
+				weld.Part0 = parts
+				weld.Part1 = clone
+				clone.CFrame = parts.CFrame
+				weld.Parent = parts
+			end
+		end
+	end
+	for i,m6 in ipairs(character:GetDescendants()) do
+		if m6:IsA("Motor6D") then
+			if m6.Name ~= "Root" then
+				local socket = Instance.new("BallSocketConstraint")
+				m6.Enabled = false
+				socket.LimitsEnabled = true
+				socket.Radius = .25
+				socket.TwistLimitsEnabled = true
+				socket.TwistLowerAngle = 20
+				socket.TwistUpperAngle = -160
+				socket.UpperAngle = 80
+
+				local m1,m2
+				if not m6.Part0:FindFirstChild(m6.Name.."RigAttachment") then
+					m1 = Instance.new("Attachment")
+					m1.Name = m6.Name.."RigAttachment"
+					m1.Parent = m6.Part0
+					m1.CFrame = m6.C0
+				end
+				if not m6.Part1:FindFirstChild(m6.Name.."RigAttachment") then
+					m2 = Instance.new("Attachment")
+					m2.Name = m6.Name.."RigAttachment"
+					m2.Parent = m6.Part1
+					m2.CFrame = m6.C1
+				end
+
+				socket.Parent = m6.Parent
+				socket.Attachment0 = m6.Part0:FindFirstChild(m6.Name .. "RigAttachment")
+				socket.Attachment1 = m6.Part1:FindFirstChild(m6.Name .. "RigAttachment")
+			end
+		end
+	end
+	game.Workspace.CurrentCamera.CameraSubject = character.Head
+
+	character.HumanoidRootPart.Anchored = false
+	character.HumanoidRootPart.CanCollide = true
+	
+	character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+end
+
+
+function module:FightA(player)
+	local humanoid = player.Character.Humanoid
+	instances["Sound1"].Parent = player.Character.Torso
+	instances["Sound2"].Parent = player.Character.Torso
+	instances["Sound3"].Parent = player.Character.Torso
+
+	instances["Sound1"].SoundId = "rbxassetid://"..audio_Id["LiMed_Punch"]
+	instances["Sound1"].Volume = 2
+	instances["Sound2"].SoundId = "rbxassetid://"..audio_Id["Crack"]
+	instances["Sound2"].Volume = 2
+	instances["Sound3"].SoundId = "rbxassetid://"..audio_Id["Kick"]
+	instances["Sound3"].Volume = 4
+	--instances
+	--local clone = instances["Sound1"]:Clone()
+	GloryAnimationA.AnimationId = "http://www.roblox.com/Asset?ID="
+	GloryAnimationA.AnimationId = GloryAnimationA.AnimationId..animation_id_Player["FistA"]
+	local trackAttack = humanoid:LoadAnimation(GloryAnimationA)
+	trackAttack:Play()
+	wait(.5)
+	instances["Sound1"]:Play()
+	wait(.22)
+	instances["Sound1"]:Play()
+	wait(.22)
+	instances["Sound1"]:Play()
+	--clone2:Play()
+	wait(.22)
+	instances["Sound1"]:Play()
+	--clone3:Play()
+	wait(.22)
+	instances["Sound1"]:Play()
+	--clone4:Play()
+	wait(.22)
+	instances["Sound1"]:Play()
+	wait(.5)
+	instances["Sound2"]:Play()
+	wait(.2)
+	instances["Sound2"]:Stop()
+	wait(.22)
+	instances["Sound3"]:Play()
+
+	trackAttack.Stopped:Wait()
+end
+
+function module:FightB(player)
+	local humanoid = player.Character.Humanoid
+	instances["Sound1"].Parent = player.Character.Torso
+	instances["Sound2"].Parent = player.Character.Torso
+	instances["Sound3"].Parent = player.Character.Torso
+
+	instances["Sound1"].SoundId = "rbxassetid://"..audio_Id["LiMed_Punch"]
+	instances["Sound1"].Volume = 2
+	instances["Sound2"].SoundId = "rbxassetid://"..audio_Id["Crack"]
+	instances["Sound2"].Volume = 2
+	instances["Sound3"].SoundId = "rbxassetid://"..audio_Id["Kick"]
+	instances["Sound3"].Volume = 4
+	--instances
+	--local clone = instances["Sound1"]:Clone()
+	GloryAnimationA.AnimationId = "http://www.roblox.com/Asset?ID="
+	GloryAnimationA.AnimationId = GloryAnimationA.AnimationId..animation_id_Player["FistB"]
+	local trackAttack = humanoid:LoadAnimation(GloryAnimationA)
+	trackAttack:Play()
+	trackAttack.Stopped:Wait()
+	
+end
+
+function module:oktest(playera)
+		GloryAnimationE.AnimationId = "http://www.roblox.com/Asset?ID="
+		--instances["Sound1"].Parent = player.Character.Torso
+		--instances["Sound2"].Parent = player.Character.Torso
+		--instances["Sound3"].Parent = player.Character.Torso
+		--playera.CameraMaxZoomDistance = .5
+		--playera.Humanoid.WalkSpeed = 0
+		---playera.Dodge.Disabled = true
+		--playera.LocalScript.Disabled = true
+		--playera.Sprint.Disabled = true
+		--local torso = playera.Character.Torso
+		--local playerpos = player.Character.HumanoidRootPart.Position
+		--local attackpos = playera.Character.HumanoidRootPart.Position
+		GloryAnimationE.AnimationId = GloryAnimationE.AnimationId..animation_id_Victim["FistAB"]
+		local trackAttacked1 = playera.Humanoid:LoadAnimation(GloryAnimationE)
+
+
+	trackAttacked1:Play()
+		--punch:Play()
+		--punch:Stop()
+		--punch:Play()
+
+		--print("heh")
+
+		--playera.HumanoidRootPart.CFrame = playera.HumanoidRootPart.CFrame * CFrame.Angles(0,math.rad(75),0)--* math.rad(90)
+		--local bodyForce = Instance.new("BodyVelocity")
+		--bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+		--bodyForce.Velocity = playera.HumanoidRootPart.CFrame.LookVector*5
+		--bodyForce.Parent = playera.HumanoidRootPart
+		--debris:AddItem(bodyForce,.10)
+		--playera.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+		--game.ReplicatedStorage.GloryKill:FireServer(playera)
+
+		--playera.Humanoid.WalkSpeed = 16
+		--playera.ChaDodge.Disabled = false
+		--playera.Character.LocalScript.Disabled = false
+		--playera.Character.Sprint.Disabled = false
+		--playera.CameraMaxZoomDistance = 22.5
+
+end
+
+function module:oktestB(playera)
+	GloryAnimationE.AnimationId = "http://www.roblox.com/Asset?ID="
+	--instances["Sound1"].Parent = player.Character.Torso
+	--instances["Sound2"].Parent = player.Character.Torso
+	--instances["Sound3"].Parent = player.Character.Torso
+	--playera.CameraMaxZoomDistance = .5
+	--playera.Humanoid.WalkSpeed = 0
+	---playera.Dodge.Disabled = true
+	--playera.LocalScript.Disabled = true
+	--playera.Sprint.Disabled = true
+	--local torso = playera.Character.Torso
+	--local playerpos = player.Character.HumanoidRootPart.Position
+	--local attackpos = playera.Character.HumanoidRootPart.Position
+	GloryAnimationE.AnimationId = GloryAnimationE.AnimationId..animation_id_Victim["FistBB"]
+	local trackAttacked1 = playera.Humanoid:LoadAnimation(GloryAnimationE)
+
+
+	trackAttacked1:Play()
+	--stuff:ragdoll(playera)
+	--punch:Play()
+	--punch:Stop()
+	--punch:Play()
+
+	--print("heh")
+
+	--playera.HumanoidRootPart.CFrame = playera.HumanoidRootPart.CFrame * CFrame.Angles(0,math.rad(75),0)--* math.rad(90)
+	--local bodyForce = Instance.new("BodyVelocity")
+	--bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+	--bodyForce.Velocity = playera.HumanoidRootPart.CFrame.LookVector*5
+	--bodyForce.Parent = playera.HumanoidRootPart
+	--debris:AddItem(bodyForce,.10)
+	--playera.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	--game.ReplicatedStorage.GloryKill:FireServer(playera)
+
+	--playera.Humanoid.WalkSpeed = 16
+	--playera.ChaDodge.Disabled = false
+	--playera.Character.LocalScript.Disabled = false
+	--playera.Character.Sprint.Disabled = false
+	--playera.CameraMaxZoomDistance = 22.5
+
+end
+
+return module
