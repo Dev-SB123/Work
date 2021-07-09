@@ -1,0 +1,161 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local RunService = game:GetService("RunService")
+local humanoid = character:WaitForChild("Humanoid")
+--Where are getting UserInputService to be able to do more functions
+local UserInputService = game:GetService("UserInputService")
+local changa = 1
+local changere
+local eHeld = Enum.KeyCode.E
+
+local animlist = {5312409286,5314313763,5314371519,5313740040}
+----------------------------------------------------------------------------------
+local Animationd = Instance.new("Animation")
+Animationd.AnimationId = "http://www.roblox.com/Asset?ID="..5312409286
+local rolltrack = humanoid:LoadAnimation(Animationd)
+----------------------------------------------------------------------------------
+local Animationd2 = Instance.new("Animation")
+Animationd2.AnimationId = "http://www.roblox.com/Asset?ID="..5314313763
+local track = humanoid:LoadAnimation(Animationd2)
+----------------------------------------------------------------------------------
+local Animationd3 = Instance.new("Animation")
+Animationd3.AnimationId = "http://www.roblox.com/Asset?ID="..5314371519
+local tracks = humanoid:LoadAnimation(Animationd3)
+----------------------------------------------------------------------------------
+local Animationd4 = Instance.new("Animation")
+Animationd4.AnimationId = "http://www.roblox.com/Asset?ID="..5313740040	
+local backtrack = humanoid:LoadAnimation(Animationd4)
+---------------------------------------------------------------------------------
+local timer = 0
+times = 0
+statement = true
+local jump = Vector3.new(0,1000,0)
+local ticky = 0
+local ticky2 = 0
+local ticky3 = 0
+local debris = game:GetService("Debris")
+local RollDirection = Vector3.new()
+local move
+local sta = true
+local jus = true
+--Check if a key is pressed
+
+
+
+function stop(track)
+	if humanoid:GetState() == Enum.HumanoidStateType.Jumping then
+		return
+	end
+	if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+		track:Stop()
+	end
+end
+function check()
+	RunService.RenderStepped:Connect(function()	
+		if humanoid:GetState() == Enum.HumanoidStateType.Landed then
+			sta = true
+			return sta
+		end
+	end)
+end
+
+move = UserInputService.InputBegan:Connect(function(key, gameProcessed)
+	--This is checking id Q is pressed
+	if gameProcessed then return end
+	if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
+			
+			
+			--Check if another key is pressed to start dodge
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) and statement == true and character.Humanoid:GetState() ~= Enum.HumanoidStateType.Climbing and character.Humanoid:GetState() ~= Enum.HumanoidStateType.Physics then
+			--Play an animation a roll animation, add force and movement when rolling
+			
+				--RunService.RenderStepped:Connect(function()
+					--stop(rolltrack)
+				--end)
+			--if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall or jus == true then
+			if humanoid:GetState() ~= Enum.HumanoidStateType.FallingDown then
+				if humanoid:GetState() == Enum.HumanoidStateType.Freefall and sta == true then
+					sta = false
+					local bodyForce = Instance.new("BodyVelocity")
+					bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+					bodyForce.Velocity = (character.HumanoidRootPart.CFrame.LookVector * 65) + character.HumanoidRootPart.CFrame.UpVector * 5
+
+					wait(.05)
+
+					bodyForce.Parent = character.HumanoidRootPart
+
+					rolltrack:Play()
+					while rolltrack.IsPlaying do
+						statement = false
+						debris:AddItem(bodyForce,.14)
+						wait(.45)
+						statement = true
+						return
+					end
+				end
+				if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then	
+					local bodyForce = Instance.new("BodyVelocity")
+					bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+					bodyForce.Velocity = (character.HumanoidRootPart.CFrame.LookVector * 65) + character.HumanoidRootPart.CFrame.UpVector * 5
+					
+					wait(.05)
+							
+					bodyForce.Parent = character.HumanoidRootPart
+						
+					rolltrack:Play()
+					while rolltrack.IsPlaying do
+						statement = false
+						debris:AddItem(bodyForce,.14)
+						wait(.45)
+						statement = true
+						return
+					end
+				end
+			end
+			
+		return
+		end
+		
+	end
+	
+	
+	
+	if key.KeyCode == Enum.KeyCode.S and statement == true and character.Humanoid:GetState() ~= Enum.HumanoidStateType.Freefall and character.Humanoid:GetState() ~= Enum.HumanoidStateType.Climbing and character.Humanoid:GetState() ~= Enum.HumanoidStateType.Physics then
+		stop()
+		local difference3 = tick() - ticky3
+	
+		
+		
+		if difference3 < .20 then
+		
+			RunService.RenderStepped:Connect(function()
+				stop(backtrack)
+			end)
+			--Play animation to move back
+			local bodyForce = Instance.new("BodyVelocity")
+			bodyForce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+			bodyForce.Velocity = character.HumanoidRootPart.CFrame.LookVector * -65
+			
+			
+				
+				
+				
+			wait(.05)
+			
+			bodyForce.Parent = character.HumanoidRootPart
+			backtrack:Play()
+			while backtrack.IsPlaying do
+				statement = false
+				debris:AddItem(bodyForce,.14)
+				wait(.45)
+				statement = true
+				return
+			end
+		end
+		ticky3 = tick()
+	
+	return
+	end
+end)
+
+spawn(check)
